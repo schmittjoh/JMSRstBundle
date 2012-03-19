@@ -140,6 +140,8 @@ class ProjectGenerator
             }
         }
 
-        return $doc->saveXML($xpath->query(CssSelector::toXPath('body > div'))->item(0));
+        $html = $doc->saveHTML();
+
+        return preg_replace('#^.*?<body>(.*)</body>.*?$#s', '\\1', $html);
     }
 }
