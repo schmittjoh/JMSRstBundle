@@ -18,6 +18,7 @@ class TwitterBootstrap2Transformer implements TransformerInterface
 
         $this->rewriteAdmonitions($doc, $xpath, 'note', null, 'icon-pencil');
         $this->rewriteAdmonitions($doc, $xpath, 'tip', 'alert-info', 'icon-eye-open');
+        $this->rewriteAdmonitions($doc, $xpath, 'warning', 'alert-error', 'icon-warning-sign');
     }
 
     private function rewriteAdmonitions(\DOMDocument $doc, \DOMXPath $xpath, $admonitionClass, $alertClass = null, $iconClass = null)
