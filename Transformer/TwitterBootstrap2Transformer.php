@@ -11,7 +11,7 @@ use Symfony\Component\CssSelector\CssSelector;
  */
 class TwitterBootstrap2Transformer implements TransformerInterface
 {
-    public function transform(\DOMDocument $doc, \DOMXPath $xpath)
+    public function transform(\DOMDocument $doc, \DOMXPath $xpath, $rootDir)
     {
         $this->cleanUpUnusedAttributes($doc, $xpath);
         $this->rewriteConfigurationBlocks($doc, $xpath);

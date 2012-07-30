@@ -3,17 +3,14 @@
 namespace JMS\RstBundle\Generator;
 
 use Symfony\Component\Finder\Finder;
-
 use Symfony\Component\Filesystem\Filesystem;
-
 use JMS\RstBundle\Model\File;
-
 use JMS\RstBundle\LinkRewriter\LinkRewriterInterface;
-
 use Symfony\Component\CssSelector\CssSelector;
 use JMS\RstBundle\Transformer\TransformerInterface;
 use JMS\RstBundle\Model\Project;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class ProjectGenerator
 {
@@ -66,7 +63,7 @@ class ProjectGenerator
 
         $proc = new Process($cmd);
         if (0 !== $proc->run()) {
-            throw new \RuntimeException(sprintf('The command "'.$cmd.'" failed.'));
+            throw new ProcessFailedException($proc);
         }
 
         $project = new Project();
@@ -78,7 +75,7 @@ class ProjectGenerator
                 $this->linkRewriter->setCurrentFile($basename);
             }
 
-            $data['body'] = $this->postProcessBody($data['body']);
+            $data['body'] = $this->postProcessBody($data['body'], $outputDir);
             $data['toc'] = $this->postProcessTableOfContents($data['toc']);
 
             if (null !== $this->linkRewriter) {
@@ -123,14 +120,14 @@ class ProjectGenerator
         return $uls[1]->saveXml();
     }
 
-    private function postProcessBody($body)
+    private function postProcessBody($body, $rootDir)
     {
         $doc = new \DOMDocument('1.0', 'utf-8');
         $doc->loadHTML(utf8_decode($body));
         $xpath = new \DOMXPath($doc);
 
         foreach ($this->transformers as $transformer) {
-            $transformer->transform($doc, $xpath);
+            $transformer->transform($doc, $xpath, $rootDir);
         }
 
         if (null !== $this->linkRewriter) {
