@@ -13,9 +13,10 @@ class ImageEmbeddingTransformer implements TransformerInterface
     {
         foreach ($xpath->query('//img') as $imgElem) {
             $src = $imgElem->getAttribute('src');
-            if (0 !== strpos($src, '_images/')) {
+            if ( ! preg_match('#^(?:\.\./)*(_images/.*)#', $src, $match)) {
                 continue;
             }
+            $src = $match[1];
 
             if ( ! is_file($rootDir.'/'.$src)) {
                 continue;
