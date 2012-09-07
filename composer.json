@@ -1,5 +1,5 @@
 {
-    "name": "jms/rst-bundle"
+    "name": "jms/rst-bundle",
 
     "autoload": {
         "psr-0": { "JMS\\RstBundle": "" }
