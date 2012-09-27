@@ -30,6 +30,18 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->defaultValue(function() use ($exFinder) { return $exFinder->find('sphinx-build'); })
                     ->end()
+                    ->scalarNode('sphinx_config_dir')
+                        ->isRequired()
+                        ->validate()
+                            ->always(function($v) {
+                                if ( ! is_dir($v)) {
+                                    throw new \RuntimeException(sprintf('The config dir "%s" does not exist.', $v));
+                                }
+
+                                return $v;
+                            })
+                        ->end()
+                    ->end()
                 ->end()
             ->end()
         ;
