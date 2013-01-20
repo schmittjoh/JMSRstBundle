@@ -4,6 +4,7 @@ namespace JMS\RstBundle\LinkRewriter;
 
 interface LinkRewriterInterface
 {
-    function setCurrentFile($file);
-    function rewriteHref($href);
+    public function setCurrentFile($file);
+    public function setPaths(array $paths);
+    public function rewriteHref($href);
 }

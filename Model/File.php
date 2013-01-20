@@ -30,6 +30,19 @@ class File
         return $this->pathname;
     }
 
+    public function getVisiblePathname()
+    {
+        if ('index' === $this->pathname) {
+            return '/';
+        }
+
+        if ('index' === substr($this->pathname, -5)) {
+            return substr($this->pathname, 0, -5);
+        }
+
+        return $this->pathname;
+    }
+
     public function getTitle()
     {
         return $this->title;

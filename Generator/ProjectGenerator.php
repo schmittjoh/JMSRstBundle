@@ -9,6 +9,7 @@ use JMS\RstBundle\LinkRewriter\LinkRewriterInterface;
 use Symfony\Component\CssSelector\CssSelector;
 use JMS\RstBundle\Transformer\TransformerInterface;
 use JMS\RstBundle\Model\Project;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
@@ -17,6 +18,8 @@ class ProjectGenerator
     private $sphinxPath;
     private $configPath;
     private $transformers = array();
+
+    /** @var LinkRewriterInterface */
     private $linkRewriter;
 
     public function __construct($sphinxPath, $configPath)
@@ -67,8 +70,19 @@ class ProjectGenerator
         }
 
         $project = new Project();
+
+        if (null !== $this->linkRewriter) {
+            $paths = array();
+            foreach (Finder::create()->files()->in($docPath)->name('*.rst') as $file) {
+                /** @var $file SplFileInfo */
+
+                $paths[] = substr($file->getRelativePathname(), 0, -4);
+            }
+            $this->linkRewriter->setPaths($paths);
+        }
+
         foreach (Finder::create()->files()->in($docPath)->name('*.rst') as $file) {
-            $basename = str_replace('\\', '/', substr(realpath($file), strlen(realpath($docPath))+1, -4));
+            $basename = substr($file->getRelativePathname(), 0, -4);
             $data = json_decode(file_get_contents($outputDir.'/'.$basename.'.fjson'), true);
 
             if (null !== $this->linkRewriter) {
@@ -105,6 +119,11 @@ class ProjectGenerator
         }
 
         return $project;
+    }
+
+    private function getRelativePathname(SplFileInfo $file, $docPath)
+    {
+
     }
 
     private function postProcessTableOfContents($toc)

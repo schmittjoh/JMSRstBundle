@@ -21,6 +21,47 @@ class TwitterBootstrap2Transformer implements TransformerInterface
         $this->rewriteAdmonitions($doc, $xpath, 'warning', 'alert-error', 'icon-warning-sign');
 
         $this->rewriteVersion($doc, $xpath, 'versionadded', 'label-success');
+
+        $this->rewriteBlockquotes($doc, $xpath);
+    }
+
+    private function rewriteBlockquotes(\DOMDocument $doc, \DOMXPath $xpath)
+    {
+        foreach ($xpath->query(CssSelector::toXPath('blockquote > div')) as $divElem) {
+            /** @var $divElem \DOMElement */
+
+            $quoteElem = $divElem->parentNode;
+            for ($i=0; $i<$divElem->childNodes->length;$i++) {
+                $childNode = $divElem->childNodes->item($i);
+
+                if ($childNode instanceof \DOMText) {
+                    if ('' === trim($childNode->nodeValue)) {
+                        continue;
+                    }
+
+                    $quoteElem->appendChild($doc->createElement('p', $childNode->nodeValue));
+
+                    continue;
+                }
+
+                if ('attribution' === (string) $childNode->getAttribute('class')) {
+                    $attrNode = $doc->createElement('small');
+
+                    for ($k=1; $k<$childNode->childNodes->length; $k++) {
+                        $attrChild = $childNode->childNodes->item($k);
+                        $attrNode->appendChild($attrChild);
+                    }
+
+                    $quoteElem->appendChild($attrNode);
+
+                    continue;
+                }
+
+                $quoteElem->appendChild($childNode);
+            }
+
+            $quoteElem->removeChild($divElem);
+        }
     }
 
     private function rewriteVersion(\DOMDocument $doc, \DOMXPath $xpath, $versionClass, $labelClass = null)
