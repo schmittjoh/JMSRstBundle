@@ -8,7 +8,7 @@ class Project
 
     public function addFile(File $file)
     {
-        $this->files[$file->getPath()] = $file;
+        $this->files[$file->getPathname()] = $file;
     }
 
     public function getFiles()

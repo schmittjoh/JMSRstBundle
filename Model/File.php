@@ -4,32 +4,30 @@ namespace JMS\RstBundle\Model;
 
 class File
 {
-    private $path;
+    private $pathname;
     private $title;
     private $body;
     private $toc;
     private $displayToc;
-    private $name;
     private $parents;
     private $prev;
     private $next;
 
-    public function __construct($path, $title, $body, $toc, $displayToc, $name, array $parents = null, array $prev = null, array $next = null)
+    public function __construct($pathname, $title, $body, $toc, $displayToc, array $parents = null, array $prev = null, array $next = null)
     {
-        $this->path = $path;
+        $this->pathname = $pathname;
         $this->title = $title;
         $this->body = $body;
         $this->toc = $toc;
         $this->displayToc = (Boolean) $displayToc;
-        $this->name = $name;
         $this->parents = $parents;
         $this->prev = $prev;
         $this->next = $next;
     }
 
-    public function getPath()
+    public function getPathname()
     {
-        return $this->path;
+        return $this->pathname;
     }
 
     public function getTitle()
@@ -50,11 +48,6 @@ class File
     public function isDisplayToc()
     {
         return $this->displayToc;
-    }
-
-    public function getName()
-    {
-        return $this->name;
     }
 
     public function getParents()

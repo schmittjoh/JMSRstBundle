@@ -98,7 +98,6 @@ class ProjectGenerator
                 $data['body'],
                 $data['toc'],
                 $data['display_toc'],
-                $data['current_page_name'],
                 $data['parents'],
                 $data['prev'],
                 $data['next']
