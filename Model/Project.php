@@ -4,6 +4,7 @@ namespace JMS\RstBundle\Model;
 
 class Project
 {
+    /** @var File[] */
     private $files = array();
 
     public function addFile(File $file)
