@@ -23,6 +23,10 @@ class ImageEmbeddingTransformer implements TransformerInterface
             }
 
             switch (true) {
+                case '.jpg' === substr($src, -4):
+                    $type = 'image/jpeg';
+                    break;
+
                 case '.png' === substr($src, -4):
                     $type = 'image/png';
                     break;
