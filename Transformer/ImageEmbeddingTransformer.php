@@ -31,6 +31,10 @@ class ImageEmbeddingTransformer implements TransformerInterface
                     $type = 'image/png';
                     break;
 
+                case '.gif' === substr($src, -4):
+                    $type = 'image/gif';
+                    break;
+
                 default:
                     throw new \RuntimeException(sprintf('Unsupported image type "%s".', $src));
             }
