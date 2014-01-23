@@ -141,7 +141,7 @@ class ProjectGenerator implements LoggerAwareInterface
                 $this->linkRewriter->setCurrentFile($basename);
             }
 
-            $data['body'] = $this->postProcessBody($data['body'], $outputDir);
+            $data['body'] = $this->postProcessBody($data['body'], $outputDir, $basename);
             $data['toc'] = $this->postProcessTableOfContents($data['toc']);
 
             if (null !== $this->linkRewriter) {
@@ -219,19 +219,29 @@ class ProjectGenerator implements LoggerAwareInterface
         return $uls[1]->saveXml();
     }
 
-    private function postProcessBody($body, $rootDir)
+    private function postProcessBody($body, $rootDir, $pathname)
     {
         $doc = new \DOMDocument('1.0', 'utf-8');
         $doc->loadHTML(utf8_decode($body));
         $xpath = new \DOMXPath($doc);
 
         foreach ($this->transformers as $transformer) {
+            if ($transformer instanceof PathAware) {
+                $transformer->setCurrentPathname($pathname);
+            }
+
             $transformer->transform($doc, $xpath, $rootDir);
         }
 
         if (null !== $this->linkRewriter) {
             // rewrite links
             foreach ($xpath->query('//a') as $aElem) {
+                /** @var \DOMElement $aElem */
+
+                if ( ! $aElem->hasAttribute('href')) {
+                    continue;
+                }
+
                 $aElem->setAttribute('href', $this->linkRewriter->rewriteHref($aElem->getAttribute('href')));
             }
         }
