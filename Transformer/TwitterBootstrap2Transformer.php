@@ -16,6 +16,8 @@ class TwitterBootstrap2Transformer implements TransformerInterface
         $this->cleanUpUnusedAttributes($doc, $xpath);
         $this->rewriteConfigurationBlocks($doc, $xpath);
 
+        $this->rewriteLiterals($doc, $xpath);
+
         $this->rewriteAdmonitions($doc, $xpath, 'note', null, 'icon-pencil');
         $this->rewriteAdmonitions($doc, $xpath, 'tip', 'alert-info', 'icon-eye-open');
         $this->rewriteAdmonitions($doc, $xpath, 'warning', 'alert-error', 'icon-warning-sign');
@@ -23,6 +25,32 @@ class TwitterBootstrap2Transformer implements TransformerInterface
         $this->rewriteVersion($doc, $xpath, 'versionadded', 'label-success');
 
         $this->rewriteBlockquotes($doc, $xpath);
+    }
+
+    private function rewriteLiterals(\DOMDocument $doc, \DOMXPath $xpath)
+    {
+        foreach ($xpath->query(CssSelector::toXPath('tt.docutils.literal')) as $ttElem) {
+            /** @var \DOMElement $ttElem */
+
+            if ($ttElem->childNodes->length !== 1) {
+                continue;
+            }
+
+            $item = $ttElem->childNodes->item(0);
+            if ( ! $item instanceof \DOMElement) {
+                continue;
+            }
+
+            if ($item->nodeName !== 'span' || $item->getAttribute('class') !== 'pre') {
+                continue;
+            }
+
+            $preElem = $doc->createElement('code');
+            $preElem->appendChild($doc->createTextNode($item->textContent));
+
+            $ttElem->parentNode->insertBefore($preElem, $ttElem);
+            $ttElem->parentNode->removeChild($ttElem);
+        }
     }
 
     private function rewriteBlockquotes(\DOMDocument $doc, \DOMXPath $xpath)
