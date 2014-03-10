@@ -18,6 +18,8 @@ class TwitterBootstrap2Transformer implements TransformerInterface
 
         $this->rewriteLiterals($doc, $xpath);
 
+        $this->rewriteSubheaders($doc, $xpath);
+
         $this->rewriteAdmonitions($doc, $xpath, 'note', null, 'icon-pencil');
         $this->rewriteAdmonitions($doc, $xpath, 'tip', 'alert-info', 'icon-eye-open');
         $this->rewriteAdmonitions($doc, $xpath, 'warning', 'alert-error', 'icon-warning-sign');
@@ -25,6 +27,21 @@ class TwitterBootstrap2Transformer implements TransformerInterface
         $this->rewriteVersion($doc, $xpath, 'versionadded', 'label-success');
 
         $this->rewriteBlockquotes($doc, $xpath);
+    }
+
+    private function rewriteSubheaders(\DOMDocument $document, \DOMXPath $xpath)
+    {
+        foreach ($xpath->query(CssSelector::toXPath('h1 > em, h2 > em, h3 > em, h4 > em, h5 > em, h6 > em')) as $emElem) {
+            /** @var \DOMElement $emElem */
+
+            $smallElem = $document->createElement('small');
+            foreach ($emElem->childNodes as $childNode) {
+                $smallElem->appendChild($childNode);
+            }
+
+            $emElem->parentNode->insertBefore($smallElem, $emElem);
+            $emElem->parentNode->removeChild($emElem);
+        }
     }
 
     private function rewriteLiterals(\DOMDocument $doc, \DOMXPath $xpath)
