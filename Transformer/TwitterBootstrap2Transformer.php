@@ -2,6 +2,8 @@
 
 namespace JMS\RstBundle\Transformer;
 
+use PhpOption\None;
+use PhpOption\Some;
 use Symfony\Component\CssSelector\CssSelector;
 
 /**
@@ -49,25 +51,43 @@ class TwitterBootstrap2Transformer implements TransformerInterface
         foreach ($xpath->query(CssSelector::toXPath('tt.docutils.literal')) as $ttElem) {
             /** @var \DOMElement $ttElem */
 
-            if ($ttElem->childNodes->length !== 1) {
-                continue;
-            }
+            $this->getCodeFromLiteralMaybe($ttElem)
+                ->forAll(function($code) use ($ttElem, $doc) {
+                    $preElem = $doc->createElement('code');
+                    $preElem->appendChild($doc->createTextNode($code));
 
-            $item = $ttElem->childNodes->item(0);
-            if ( ! $item instanceof \DOMElement) {
-                continue;
-            }
-
-            if ($item->nodeName !== 'span' || $item->getAttribute('class') !== 'pre') {
-                continue;
-            }
-
-            $preElem = $doc->createElement('code');
-            $preElem->appendChild($doc->createTextNode($item->textContent));
-
-            $ttElem->parentNode->insertBefore($preElem, $ttElem);
-            $ttElem->parentNode->removeChild($ttElem);
+                    $ttElem->parentNode->insertBefore($preElem, $ttElem);
+                    $ttElem->parentNode->removeChild($ttElem);
+                })
+            ;
         }
+    }
+
+    private function getCodeFromLiteralMaybe(\DOMElement $ttElem)
+    {
+        if ($ttElem->childNodes->length === 0) {
+            return None::create();
+        }
+
+        $code = '';
+        foreach ($ttElem->childNodes as $childElem) {
+            if ($childElem instanceof \DOMText) {
+                $code .= $childElem->textContent;
+                continue;
+            }
+
+            if ( ! $childElem instanceof \DOMElement) {
+                return None::create();
+            }
+
+            if ($childElem->nodeName !== 'span' || $childElem->getAttribute('class') !== 'pre') {
+                return None::create();
+            }
+
+            $code .= $childElem->textContent;
+        }
+
+        return new Some($code);
     }
 
     private function rewriteBlockquotes(\DOMDocument $doc, \DOMXPath $xpath)
