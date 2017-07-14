@@ -1,8 +1,7 @@
 <?php
 
 namespace JMS\RstBundle\Transformer;
-
-use Symfony\Component\CssSelector\CssSelector;
+use Symfony\Component\CssSelector\CssSelectorConverter;
 
 /**
  * Transforms the default sphinx output into output compatible with Twitter Bootstrap2.
@@ -11,6 +10,13 @@ use Symfony\Component\CssSelector\CssSelector;
  */
 class TwitterBootstrap2Transformer implements TransformerInterface
 {
+    private $cssSelector;
+    
+    public function __construct()
+    {
+        $this->cssSelector = new CssSelectorConverter();
+    }
+
     public function transform(\DOMDocument $doc, \DOMXPath $xpath, $rootDir)
     {
         $this->cleanUpUnusedAttributes($doc, $xpath);
@@ -25,8 +31,8 @@ class TwitterBootstrap2Transformer implements TransformerInterface
 
     private function rewriteVersion(\DOMDocument $doc, \DOMXPath $xpath, $versionClass, $labelClass = null)
     {
-        foreach ($xpath->query(CssSelector::toXPath('p.'.$versionClass)) as $pElem) {
-            $label = $xpath->query(CssSelector::toXPath('span.versionmodified'), $pElem)->item(0);
+        foreach ($xpath->query($this->cssSelector->toXPath('p.'.$versionClass)) as $pElem) {
+            $label = $xpath->query($this->cssSelector->toXPath('span.versionmodified'), $pElem)->item(0);
             $label->setAttribute('class', 'label'.($labelClass ? ' '.$labelClass : ''));
             $text = substr($label->nodeValue, 0, -2);
             $label->nodeValue = $text;
@@ -37,11 +43,11 @@ class TwitterBootstrap2Transformer implements TransformerInterface
 
     private function rewriteAdmonitions(\DOMDocument $doc, \DOMXPath $xpath, $admonitionClass, $alertClass = null, $iconClass = null)
     {
-        foreach ($xpath->query(CssSelector::toXPath('div.admonition.'.$admonitionClass)) as $divElem) {
+        foreach ($xpath->query($this->cssSelector->toXPath('div.admonition.'.$admonitionClass)) as $divElem) {
             $divElem->setAttribute('class', 'admonition alert'.($alertClass ? ' '.$alertClass : ''));
 
-            $noteElem = $xpath->query(CssSelector::toXPath('p.first'), $divElem)->item(0);
-            $noteContentElem = $xpath->query(CssSelector::toXPath('p.last'), $divElem)->item(0);
+            $noteElem = $xpath->query($this->cssSelector->toXPath('p.first'), $divElem)->item(0);
+            $noteContentElem = $xpath->query($this->cssSelector->toXPath('p.last'), $divElem)->item(0);
 
             if (null !== $iconClass) {
                 $divElem->appendChild($iconElem = new \DOMElement('i'));
@@ -74,19 +80,19 @@ class TwitterBootstrap2Transformer implements TransformerInterface
     private function rewriteConfigurationBlocks(\DOMDocument $doc, \DOMXPath $xpath)
     {
         $i = 0;
-        foreach ($xpath->query(CssSelector::toXPath('div.configuration-block')) as $divElem) {
+        foreach ($xpath->query($this->cssSelector->toXPath('div.configuration-block')) as $divElem) {
             $divElem->setAttribute('class', 'configuration-block tabbable');
 
             foreach ($xpath->query('./ul', $divElem) as $ulElem) {
                 $ulElem->setAttribute('class', 'nav nav-tabs');
             }
 
-            $xpath->query(CssSelector::toXPath('ul > li:first-child'), $divElem)->item(0)->setAttribute('class', 'active');
+            $xpath->query($this->cssSelector->toXPath('ul > li:first-child'), $divElem)->item(0)->setAttribute('class', 'active');
             $divElem->appendChild($contentElem = new \DOMElement('div'));
             $contentElem->setAttribute('class', 'tab-content');
 
             $j = 0;
-            foreach ($xpath->query(CssSelector::toXPath('ul > li'), $divElem) as $liElem) {
+            foreach ($xpath->query($this->cssSelector->toXPath('ul > li'), $divElem) as $liElem) {
                 $titleElem = $xpath->query('./em', $liElem)->item(0);
 
                 $tabElem = $xpath->query('./div', $liElem)->item(0);

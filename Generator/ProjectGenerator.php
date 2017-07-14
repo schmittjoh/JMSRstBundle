@@ -2,11 +2,11 @@
 
 namespace JMS\RstBundle\Generator;
 
+use Symfony\Component\CssSelector\CssSelectorConverter;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 use JMS\RstBundle\Model\File;
 use JMS\RstBundle\LinkRewriter\LinkRewriterInterface;
-use Symfony\Component\CssSelector\CssSelector;
 use JMS\RstBundle\Transformer\TransformerInterface;
 use JMS\RstBundle\Model\Project;
 use Symfony\Component\Process\Process;
@@ -18,6 +18,7 @@ class ProjectGenerator
     private $configPath;
     private $transformers = array();
     private $linkRewriter;
+    private $cssSelector;
 
     public function __construct($sphinxPath, $configPath)
     {
@@ -27,6 +28,7 @@ class ProjectGenerator
 
         $this->sphinxPath = $sphinxPath;
         $this->configPath = $configPath;
+        $this->cssSelector = new CssSelectorConverter();
     }
 
     public function setLinkRewriter(LinkRewriterInterface $linkRewriter)
@@ -111,7 +113,7 @@ class ProjectGenerator
     private function postProcessTableOfContents($toc)
     {
         $xml = simplexml_load_string($toc);
-        $uls = $xml->xpath(CssSelector::toXPath('ul'));
+        $uls = $xml->xpath($this->cssSelector->toXPath('ul'));
 
         if (!isset($uls[1])) {
             return $toc;
