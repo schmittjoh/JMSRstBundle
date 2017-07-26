@@ -87,7 +87,11 @@ class TwitterBootstrap2Transformer implements TransformerInterface
                 $ulElem->setAttribute('class', 'nav nav-tabs');
             }
 
-            $xpath->query($this->cssSelector->toXPath('ul > li:first-child'), $divElem)->item(0)->setAttribute('class', 'active');
+            $firstChild = $xpath->query($this->cssSelector->toXPath('ul > li:first-child'), $divElem);
+            if ($firstChild->length > 0) {
+                $firstChild->item(0)->setAttribute('class', 'active');
+            }
+           
             $divElem->appendChild($contentElem = new \DOMElement('div'));
             $contentElem->setAttribute('class', 'tab-content');
 
