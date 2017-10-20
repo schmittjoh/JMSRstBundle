@@ -141,6 +141,9 @@ class ProjectGenerator implements LoggerAwareInterface
                 $this->linkRewriter->setCurrentFile($basename);
             }
 
+            // Workaround for problems caused in some of the transformers.
+            $data['body'] = strtr($data['body'], array("\u{2018}" => "'", "\u{2019}" => "'"));
+
             $data['body'] = $this->postProcessBody($data['body'], $outputDir, $basename);
             $data['toc'] = $this->postProcessTableOfContents($data['toc']);
 
