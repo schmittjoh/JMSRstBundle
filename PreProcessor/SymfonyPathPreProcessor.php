@@ -21,7 +21,7 @@ class SymfonyPathPreProcessor implements PreProcessorInterface
         }
 
         return preg_replace_callback('/:sf_path:`([^<]+)<([^>]+)>`/', function ($match) {
-            return '`'.$match[1].'<'.$this->router->generate($match[2], array(), true).'>`_';
+            return '`'.$match[1].'<'.$this->router->generate($match[2], array(), RouterInterface::ABSOLUTE_URL).'>`_';
         }, $content);
     }
 }
