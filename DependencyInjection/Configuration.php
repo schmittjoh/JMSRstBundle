@@ -11,10 +11,10 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $exFinder = new ExecutableFinder();
-        $tb = new TreeBuilder();
+        $tb = new TreeBuilder('jms_rst', 'array');
 
         $tb
-            ->root('jms_rst', 'array')
+            ->getRootNode()
                 ->children()
                     ->scalarNode('sphinx_path')
                         ->validate()
