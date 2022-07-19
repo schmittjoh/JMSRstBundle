@@ -107,16 +107,7 @@ class ProjectGenerator implements LoggerAwareInterface
         $fs->mkdir($outputDir, 0777);
 
         $cmd = escapeshellarg($this->sphinxPath).' -c '.escapeshellarg($this->configPath).' -b json '.escapeshellarg($tmpFolder).' '.escapeshellarg($outputDir);
-
-        // make paths relative to cygwin on Windows as sphinx-build only runs with it
-        // TODO: This makes a few assumptions about the set-up which should probably be configurable
-        if (0 === strpos(PHP_OS, 'WIN')) {
-            $cmd = str_replace('C:\\', '/cygdrive/c/', $cmd);
-            $cmd = str_replace('\\', '/', $cmd);
-            $cmd = 'C:\cygwin\bin\bash -c "'.$cmd.'"';
-        }
-
-        $proc = new Process($cmd);
+        $proc = Process::fromShellCommandline($cmd);
         if (0 !== $proc->run()) {
             throw new ProcessFailedException($proc);
         }
@@ -182,12 +173,8 @@ class ProjectGenerator implements LoggerAwareInterface
     {
         $tmpFolder = tempnam(sys_get_temp_dir(), 'rst-project');
         $this->fs->remove($tmpFolder);
-
-        $proc = new Process('cp -R '.escapeshellarg($docPath).' '.$tmpFolder);
-        if (0 !== $proc->run()) {
-            throw new ProcessFailedException($proc);
-        }
-
+        $this->fs->mkdir($tmpFolder);
+        $this->fs->mirror($docPath, $tmpFolder);
         foreach ($this->builders as $builder) {
             $builder->build($tmpFolder);
         }
